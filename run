@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./resources/filler_vm -f resources/maps/map01 -p1 resources/players/$1.filler -p2 resources/players/$2.filler

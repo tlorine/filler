@@ -1,0 +1,3 @@
+#!/bin/bash
+
+gcc filler.c create_step.c delete_step.c track_enemy.c attack_enemy.c libft/libft.a -o tlorine.filler ; mv -f tlorine.filler resources/players
