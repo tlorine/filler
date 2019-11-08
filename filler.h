@@ -6,57 +6,66 @@
 /*   By: tlorine <tlorine@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/22 18:55:55 by tlorine           #+#    #+#             */
-/*   Updated: 2019/10/22 18:55:56 by tlorine          ###   ########.fr       */
+/*   Updated: 2019/10/29 16:09:57 by tlorine          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FILLER_H
-#define FILLER_H
+# define FILLER_H
 
-#include "libft/libft.h"
-#include <fcntl.h>
+# include "lib/libft.h"
+# include <fcntl.h>
 
-#define O -1
-#define X -2
-#define POINT -3
-#define END_AR -4
+# define O -1
+# define X -2
+# define POINT -3
+# define END_AR -4
 
-typedef struct t_figure
+# define FREE_S(inf) free(inf), inf = NULL
+
+typedef struct		s_figure
 {
-    int x;
-    int y;
-    char ch;
-    struct t_figure *next;
-}               figure;
+	int				x;
+	int				y;
+	char			ch;
+	struct s_figure	*next;
+}					t_figure;
 
-typedef struct t_coords
+typedef struct		s_coords
 {
-    int x;
-    int y;
-    int poz;
-}               coords;
+	int				x;
+	int				y;
+	int				poz;
+}					t_coords;
 
-typedef struct t_step
+typedef struct		s_step
 {
-    char	**map;
-	int		**map_num;
-    int		figure_width;
-    int		figure_height;
-	int 	player;
-	int 	enemy;
-    figure  *figure;
-}              step;
+	int				**map_num;
+	int				figure_width;
+	int				figure_height;
+	int				player;
+	int				enemy;
+	t_figure		*figure;
+}					t_step;
 
-typedef struct t_game_info
+typedef struct		s_game_info
 {
-    int player;
-    int map_x;
-    int map_y;
-}              game_info;
+	int				player;
+	int				map_x;
+	int				map_y;
+}					t_game_info;
 
-step *create_step(game_info *ginf);
-void	delete_step(step **st);
-void track_enemy(step *stp, game_info *gf);
-int attack_enemy(step *stp, game_info *gf);
+typedef struct		s_nm
+{
+	int				x;
+	int				y;
+	char			*line;
+	int				**map_num;
+}					t_nm;
+
+t_step				*create_step(t_game_info *ginf);
+void				delete_step(t_step **st);
+void				track_enemy(t_step *stp, t_game_info *gf);
+int					attack_enemy(t_step *stp, t_game_info *gf);
 
 #endif

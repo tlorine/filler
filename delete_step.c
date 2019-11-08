@@ -6,49 +6,45 @@
 /*   By: tlorine <tlorine@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/22 18:55:39 by tlorine           #+#    #+#             */
-/*   Updated: 2019/10/22 18:55:40 by tlorine          ###   ########.fr       */
+/*   Updated: 2019/10/29 15:37:39 by tlorine          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "filler.h"
 
-char **delete_map(char **map, int **map_num)
+int				**delete_map(int **map_num)
 {
-    int i;
+	int i;
 
-    i = 0;
-    while (map[i] != NULL)
-        i++;
+	i = 0;
+	while (map_num[i] != NULL)
+		i++;
 	i--;
-    while (i != -1)
-    {
-       	map[i] = ft_strdel(&map[i]);
+	while (i != -1)
+	{
 		free(map_num[i]);
 		map_num[i] = NULL;
-        i--;
-    }
-    free (map);
-    map = NULL;
-	free (map_num);
-   	map_num = NULL;
-    return (map);
+		i--;
+	}
+	free(map_num);
+	map_num = NULL;
+	return (map_num);
 }
 
-void    delete_step(step **st)
+void			delete_step(t_step **st)
 {
-    int i;
-    figure *tmp;
+	t_figure	*tmp;
+	int			i;
 
-    i = 0;
-    while(((*st)->figure) != NULL)
-    {
-        tmp = (*st)->figure->next;
-        free((*st)->figure);
-        (*st)->figure = NULL;
-        (*st)->figure = tmp;
-    }
-	(*st)->map = delete_map((*st)->map, (*st)->map_num);
-	(*st)->map_num = NULL;
+	i = 0;
+	while (((*st)->figure) != NULL)
+	{
+		tmp = (*st)->figure->next;
+		free((*st)->figure);
+		(*st)->figure = NULL;
+		(*st)->figure = tmp;
+	}
+	(*st)->map_num = delete_map((*st)->map_num);
 	free(*st);
 	*st = NULL;
 	return ;

@@ -6,20 +6,20 @@
 /*   By: tlorine <tlorine@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/22 18:55:31 by tlorine           #+#    #+#             */
-/*   Updated: 2019/10/22 18:55:33 by tlorine          ###   ########.fr       */
+/*   Updated: 2019/10/29 15:37:33 by tlorine          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "filler.h"
 
-void create_new_elem(figure **fg, int y, int x, char ch)
+void		create_new_elem(t_figure **fg, int y, int x, char ch)
 {
-	figure *tmp;
+	t_figure *tmp;
 
 	tmp = *fg;
 	if (tmp == NULL)
 	{
-		*fg = (figure *)malloc(sizeof(figure));
+		*fg = (t_figure *)malloc(sizeof(t_figure));
 		(*fg)->x = x;
 		(*fg)->y = y;
 		(*fg)->ch = ch;
@@ -28,7 +28,7 @@ void create_new_elem(figure **fg, int y, int x, char ch)
 	}
 	while (tmp->next != NULL)
 		tmp = tmp->next;
-	tmp->next = (figure *)malloc(sizeof(figure));
+	tmp->next = (t_figure *)malloc(sizeof(t_figure));
 	tmp = tmp->next;
 	tmp->x = x;
 	tmp->y = y;
@@ -36,32 +36,21 @@ void create_new_elem(figure **fg, int y, int x, char ch)
 	tmp->next = NULL;
 }
 
-figure *figure_init(step *st)
+t_figure	*create_figur(t_step *st)
 {
-    char *line;
-	int width;
-	int height;
-	int i;
-	int y;
-	char tmp;
-	figure *fg;
+	t_figure	*fg;
+	char		*line;
+	int			y;
+	int			i;
 
 	fg = NULL;
-	while(get_next_line(0, &line))
-	{
-		if (ft_strstr(line, "Piece") != NULL)
-			break;
-		line = ft_strdel(&line);
-	}
-	st->figure_height = ft_atoi(line +  6);
-	st->figure_width = ft_atoi(line + (st->figure_height >= 10 ? 8 : 7));
-	line = ft_strdel(&line);
 	y = 0;
-    while (y < st->figure_height)
+	i = 0;
+	while (y < st->figure_height)
 	{
 		i = 0;
 		get_next_line(0, &line);
-        while (line[i] != '\0' && (line[0] == '.' || line[0] == '*'))
+		while (line[i] != '\0' && (line[0] == '.' || line[0] == '*'))
 		{
 			create_new_elem(&fg, y, i, line[i]);
 			i++;
@@ -72,33 +61,62 @@ figure *figure_init(step *st)
 	return (fg);
 }
 
-step *create_step(game_info *ginf)
+t_figure	*figure_init(t_step *st)
 {
-	int i;
-	char *line;
-	step *new_step;
+	char	*line;
 
-	i = 0;
-	new_step = (step *)malloc(sizeof(step));
-	new_step->map = (char **)malloc(sizeof(char *) * (ginf->map_y + 1));
 	while (get_next_line(0, &line))
 	{
-		if((ft_strstr(line, "   0")) != NULL)
-			break;
+		if (ft_strstr(line, "Piece") != NULL)
+			break ;
 		line = ft_strdel(&line);
 	}
+	st->figure_height = ft_atoi(line + 6);
+	st->figure_width = ft_atoi(line + (st->figure_height >= 10 ? 8 : 7));
 	line = ft_strdel(&line);
-	while (i < ginf->map_y)
+	return (create_figur(st));
+}
+
+int			**num_map(t_game_info *gf)
+{
+	t_nm nm;
+
+	nm.y = 0;
+	nm.x = 0;
+	nm.line = NULL;
+	nm.map_num = (int **)malloc(sizeof(int *) * (gf->map_y + 1));
+	while (nm.y < gf->map_y)
 	{
-		get_next_line(0, &line);
-		if (line[0] >= '0' && line[0] <= '9')
+		get_next_line(0, &nm.line);
+		nm.map_num[nm.y] = (int *)malloc(sizeof(int) * (gf->map_x + 1));
+		while (nm.line[nm.x + 4] != '\0')
 		{
-			new_step->map[i] = ft_strdup(line + 4);
-			line = ft_strdel(&line);
-			i++;
+			if (nm.line[nm.x + 4] == 'X' || nm.line[nm.x + 4] == 'x')
+				nm.map_num[nm.y][nm.x] = X;
+			else
+				nm.map_num[nm.y][nm.x] = nm.line[nm.x + 4] == '.' ? POINT : O;
+			nm.x++;
 		}
+		nm.map_num[nm.y][nm.x] = END_AR;
+		nm.line = ft_strdel(&nm.line);
+		nm.y++;
+		nm.x = 0;
 	}
-	new_step->map[i] = NULL;
+	nm.map_num[nm.y] = NULL;
+	return (nm.map_num);
+}
+
+t_step		*create_step(t_game_info *ginf)
+{
+	int		i;
+	char	*line;
+	t_step	*new_step;
+
+	i = 0;
+	new_step = (t_step *)malloc(sizeof(t_step));
+	get_next_line(0, &line);
+	line = ft_strdel(&line);
+	new_step->map_num = num_map(ginf);
 	new_step->figure = figure_init(new_step);
-	return(new_step);
+	return (new_step);
 }

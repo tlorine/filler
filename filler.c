@@ -6,72 +6,63 @@
 /*   By: tlorine <tlorine@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/22 18:55:47 by tlorine           #+#    #+#             */
-/*   Updated: 2019/10/22 18:55:48 by tlorine          ###   ########.fr       */
+/*   Updated: 2019/10/29 15:37:45 by tlorine          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "filler.h"
 
-game_info *init_new_game()
+t_game_info	*init_new_game(int *start, char **lm)
 {
-	game_info *new_game;
-	char *line;
+	t_game_info	*ngame;
+	char		*line;
 
 	line = NULL;
+	*lm = NULL;
+	*start = 1;
 	while (1)
 	{
 		get_next_line(0, &line);
 		if ((ft_strstr(line, "$$$")) != NULL)
 		{
-			new_game = (game_info *)malloc(sizeof(game_info));
-			new_game->player = ((ft_strstr(line, "p1")) == NULL ? 2 : 1);
+			ngame = (t_game_info *)malloc(sizeof(t_game_info));
+			ngame->player = ((ft_strstr(line, "p1")) == NULL ? 2 : 1);
 			line = ft_strdel(&line);
 			get_next_line(0, &line);
-			new_game->map_y = ft_atoi(line + 8);
-			new_game->map_x = ft_atoi(line + (new_game->map_y == 100 ? 11 : 10));
+			ngame->map_y = ft_atoi(line + 8);
+			ngame->map_x = ft_atoi(line + (ngame->map_y == 100 ? 11 : 10));
 			line = ft_strdel(&line);
 			line = NULL;
-			return (new_game);
+			return (ngame);
 		}
 	}
 }
 
-int main()
+int			main(void)
 {
-	game_info *ginf;
-	step *stp;
-	char *line;
-	int start;
+	t_game_info	*ginf;
+	t_step		*stp;
+	char		*line;
+	int			str;
 
-	line = NULL;
-	ginf = init_new_game();
-	start = 1;
-	while(1)
+	ginf = init_new_game(&str, &line);
+	while (1)
 	{
-		if (start == 1 || (line != NULL && (ft_strstr(line, "Plateau ")) != NULL))
+		if (str == 1 || (line != NULL && (ft_strstr(line, "Plateau ")) != NULL))
 		{
-			start = 0;
-			line = ft_strdel(&line);
+			str = 0;
 			stp = create_step(ginf);
-			if (ginf->player == 1)
-			{
-				stp->player = O;
-				stp->enemy = X;
-			}
-			else
-			{
-				stp->player = X;
-				stp->enemy = O;
-			}
+			stp->player = ginf->player == 1 ? O : X;
+			stp->enemy = ginf->player == 1 ? X : O;
 			track_enemy(stp, ginf);
-			start = attack_enemy(stp, ginf);
+			str = attack_enemy(stp, ginf);
 			delete_step(&stp);
 		}
-		else
-			line = ft_strdel(&line);
-		if (start == -1)
-			break;
+		line = ft_strdel(&line);
+		if (str == -1)
+			break ;
 		get_next_line(0, &line);
 	}
+	FREE_S(ginf);
 	return (0);
 }

@@ -1,1 +1,0 @@
-gcc visual.c tmp_fun.c create_list_step.c ../libft/libft.a -o vis

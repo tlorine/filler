@@ -6,13 +6,13 @@
 /*   By: tlorine <tlorine@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/22 18:55:24 by tlorine           #+#    #+#             */
-/*   Updated: 2019/10/22 18:55:25 by tlorine          ###   ########.fr       */
+/*   Updated: 2019/10/29 15:37:10 by tlorine          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "filler.h"
 
-void	init_cor(coords *cor, step *stp, game_info *gf)
+void	init_cor(t_coords *cor, t_step *s, t_game_info *gf)
 {
 	int y;
 	int x;
@@ -20,11 +20,11 @@ void	init_cor(coords *cor, step *stp, game_info *gf)
 	y = 0;
 	x = 0;
 	cor->x = -1;
-    cor->y = -1;
-	while (stp->map_num[y] && stp->map_num[y][x] != stp->player)
+	cor->y = -1;
+	while (s->map_num[y] && s->map_num[y][x] != s->player)
 	{
 		x = 0;
-		while (stp->map_num[y][x] != END_AR && stp->map_num[y][x] != stp->player)
+		while (s->map_num[y][x] != END_AR && s->map_num[y][x] != s->player)
 			x++;
 		y++;
 	}
@@ -34,46 +34,42 @@ void	init_cor(coords *cor, step *stp, game_info *gf)
 		cor->poz = 1;
 }
 
-int	chech_valid(int x, int y, step *stp)
+int		chech_valid(int x, int y, t_step *s)
 {
-	figure *tmp;
-	int i;
+	int			i;
+	t_figure	*tmp;
 
 	i = 0;
-	tmp = stp->figure;
+	tmp = s->figure;
 	while (tmp)
 	{
-		if (stp->map_num[y + tmp->y] == NULL)
+		if (s->map_num[y + tmp->y] == NULL)
 			return (0);
-		if (stp->map_num[y + tmp->y][x + tmp->x] == END_AR)
+		if (s->map_num[y + tmp->y][x + tmp->x] == END_AR)
 			return (0);
-		if(tmp->ch == '*' && stp->map_num[tmp->y + y][tmp->x + x] == stp->enemy)
+		if (tmp->ch == '*' && s->map_num[tmp->y + y][tmp->x + x] == s->enemy)
 			return (0);
-		tmp = tmp->next;
-	}
-	tmp = stp->figure;
-	while (tmp)
-	{
-		if(tmp->ch == '*' && stp->map_num[tmp->y + y][tmp->x + x] == stp->player)
+		if (tmp->ch == '*' && s->map_num[tmp->y + y][tmp->x + x] == s->player)
 			i++;
 		tmp = tmp->next;
 	}
 	return ((i == 1 ? 1 : 0));
 }
 
-int	impact_strength(int x, int y, step *stp)
+int		impact_strength(int x, int y, t_step *stp)
 {
-	figure *tmp;
-	int power;
+	int			power;
+	t_figure	*tmp;
 
 	power = 0;
 	tmp = stp->figure;
-	if(chech_valid(x, y, stp) == 1)
+	if (chech_valid(x, y, stp) == 1)
 	{
 		while (tmp)
 		{
-			if (tmp->ch == '*' && stp->map_num[tmp->y + y][tmp->x + x] != stp->player)
-					power = power + stp->map_num[tmp->y + y][tmp->x + x];
+			if (tmp->ch == '*' &&  \
+			stp->map_num[tmp->y + y][tmp->x + x] != stp->player)
+				power = power + stp->map_num[tmp->y + y][tmp->x + x];
 			tmp = tmp->next;
 		}
 		return (power);
@@ -81,35 +77,39 @@ int	impact_strength(int x, int y, step *stp)
 	return (-1);
 }
 
-int calculate_hit(int x, int y, step *stp, coords *cor)
+int		calculate_hit(int x, int y, t_step *stp, t_coords *cor)
 {
 	int power;
 	int new_power;
 
-	if (stp->map_num[y][x] == END_AR)
+	power = -1;
+	while (stp->map_num[y])
 	{
+		while (stp->map_num[y][x] != END_AR)
+		{
+			new_power = impact_strength(x, y, stp);
+			if (((new_power >= power && cor->poz == 1) \
+			|| (new_power > power && cor->poz == 2)) && new_power != -1)
+			{
+				cor->x = x;
+				cor->y = y;
+				power = new_power;
+			}
+			x++;
+		}
 		y++;
 		x = 0;
-		if (stp->map_num[y] == NULL)
-			return (-1);
-	}
-	power = calculate_hit(x + 1, y, stp, cor);
-	new_power = impact_strength(x, y, stp);
-    if (((new_power > power && cor->poz == 1) || (new_power >= power && cor->poz == 2)) && new_power != -1)
-	{
-		cor->x = x;
-		cor->y = y;
-		return (new_power);
 	}
 	return (power);
 }
 
-int attack_enemy(step *stp, game_info *gf)
+int		attack_enemy(t_step *stp, t_game_info *gf)
 {
-    coords *cor;
+	t_coords	*cor;
+
 	cor = malloc(sizeof(cor));
 	init_cor(cor, stp, gf);
-    calculate_hit(0, 0, stp, cor);
+	calculate_hit(0, 0, stp, cor);
 	ft_putnbr(cor->y);
 	ft_putchar(' ');
 	ft_putnbr(cor->x);
